@@ -39,7 +39,6 @@ public class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand,
 
         product.Update(
             request.Name,
-            request.Description,
             request.Category,
             request.Price,
             request.StockQuantity,

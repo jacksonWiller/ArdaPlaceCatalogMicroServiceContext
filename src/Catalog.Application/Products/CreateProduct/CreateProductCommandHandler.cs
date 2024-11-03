@@ -86,10 +86,8 @@ public class CreateProductCommandHandler : IRequestHandler<CreateProductCommand,
             images = [new(prefix, file.FileName)];
         }
 
-        // Criação do produto após o upload da imagem
         var product = new Product(
             request.Name,
-            request.Description,
             request.Category,
             request.Price,
             request.StockQuantity,

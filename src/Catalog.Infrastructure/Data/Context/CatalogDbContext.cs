@@ -11,11 +11,15 @@ public class CatalogDbContext(DbContextOptions<CatalogDbContext> dbOptions) : Ba
 {
     public DbSet<EventStore> EventStores { get; set; }
     public DbSet<Product> Products { get; set; }
+
+    public DbSet<Category> Categories { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
         modelBuilder.ApplyConfiguration(new ProductConfiguration());
+
+        modelBuilder.ApplyConfiguration(new CategoryConfiguration());
 
         modelBuilder.ApplyConfiguration(new EventStoreConfiguration());
     }

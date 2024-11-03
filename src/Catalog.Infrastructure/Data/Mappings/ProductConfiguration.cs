@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Catalog.Domain.Entities.ProductAggregate;
 using Catalog.Infrastructure.Data.Extensions;
 using Microsoft.EntityFrameworkCore;
@@ -12,8 +13,7 @@ internal class ProductConfiguration : IEntityTypeConfiguration<Product>
     {
         builder.ToTable("Products");
 
-        builder
-            .ConfigureBaseEntity();
+        builder.ConfigureBaseEntity();
 
         builder
             .Property(product => product.Name)
@@ -26,18 +26,12 @@ internal class ProductConfiguration : IEntityTypeConfiguration<Product>
             .HasMaxLength(100);
 
         builder
-            .Property(product => product.Category)
-            .IsRequired() // NOT NULL
-            .HasMaxLength(100);
-
-        builder
             .Property(product => product.Price)
             .IsRequired() // NOT NULL
             .HasColumnType("decimal(18,2)");
 
         builder
             .Property(product => product.StockQuantity)
-            .IsRequired() // NOT NULL
             .HasColumnType("int");
 
         builder
@@ -56,10 +50,38 @@ internal class ProductConfiguration : IEntityTypeConfiguration<Product>
             p.WithOwner().HasForeignKey("ProductId");
             p.Property<Guid>("Id");
             p.HasKey("Id");
-            p.Property(image => image.Nome).IsRequired().HasMaxLength(255);
+            p.Property(image => image.Name).IsRequired().HasMaxLength(255);
             p.Property(image => image.Prefix).IsRequired().HasMaxLength(255);
             p.Property(image => image.Url).IsRequired().HasMaxLength(255);
-            p.ToTable("ProductImages"); // Nome da tabela para armazenar as imagens
+            p.ToTable("ProductImages");
         });
+
+        // Configuração para a coleção de tags
+        builder.OwnsMany(product => product.Tags, p =>
+        {
+            p.WithOwner().HasForeignKey("ProductId");
+            p.Property<Guid>("Id");
+            p.HasKey("Id");
+            p.Property(tag => tag.Name).IsRequired().HasMaxLength(255);
+            p.ToTable("ProductTags");
+        });
+
+        builder
+            .HasMany(product => product.Categories)
+            .WithMany(category => category.Products)
+            .UsingEntity<Dictionary<string, object>>(
+                "ProductCategory",
+                j => j
+                    .HasOne<Category>()
+                    .WithMany()
+                    .HasForeignKey("CategoryId")
+                    .HasConstraintName("FK_ProductCategory_Categories_CategoryId")
+                    .OnDelete(DeleteBehavior.Cascade),
+                j => j
+                    .HasOne<Product>()
+                    .WithMany()
+                    .HasForeignKey("ProductId")
+                    .HasConstraintName("FK_ProductCategory_Products_ProductId")
+                    .OnDelete(DeleteBehavior.Cascade));
     }
 }

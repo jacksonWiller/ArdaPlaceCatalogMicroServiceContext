@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Catalog.PublicApi.Migrations
 {
     [DbContext(typeof(CatalogDbContext))]
-    [Migration("20241028234136_20241028161808_Initial")]
-    partial class _20241028161808_Initial
+    [Migration("20241103194939_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -56,18 +56,37 @@ namespace Catalog.PublicApi.Migrations
                     b.HasDiscriminator().HasValue("EventStore");
                 });
 
+            modelBuilder.Entity("Catalog.Domain.Entities.ProductAggregate.Category", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<bool>("_isDeleted")
+                        .HasColumnType("bit");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Categories", (string)null);
+                });
+
             modelBuilder.Entity("Catalog.Domain.Entities.ProductAggregate.Product", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Brand")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(100)");
-
-                    b.Property<string>("Category")
                         .IsRequired()
                         .HasMaxLength(100)
                         .IsUnicode(false)
@@ -105,6 +124,21 @@ namespace Catalog.PublicApi.Migrations
                     b.ToTable("Products", (string)null);
                 });
 
+            modelBuilder.Entity("ProductCategory", b =>
+                {
+                    b.Property<Guid>("CategoryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("CategoryId", "ProductId");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("ProductCategory");
+                });
+
             modelBuilder.Entity("Catalog.Domain.Entities.ProductAggregate.Product", b =>
                 {
                     b.OwnsMany("Catalog.Domain.ValueObjects.Image", "Images", b1 =>
@@ -113,7 +147,12 @@ namespace Catalog.PublicApi.Migrations
                                 .ValueGeneratedOnAdd()
                                 .HasColumnType("uniqueidentifier");
 
-                            b1.Property<string>("Nome")
+                            b1.Property<string>("Height")
+                                .HasMaxLength(255)
+                                .IsUnicode(false)
+                                .HasColumnType("varchar(255)");
+
+                            b1.Property<string>("Name")
                                 .IsRequired()
                                 .HasMaxLength(255)
                                 .IsUnicode(false)
@@ -134,6 +173,11 @@ namespace Catalog.PublicApi.Migrations
                                 .IsUnicode(false)
                                 .HasColumnType("varchar(255)");
 
+                            b1.Property<string>("Width")
+                                .HasMaxLength(255)
+                                .IsUnicode(false)
+                                .HasColumnType("varchar(255)");
+
                             b1.HasKey("Id");
 
                             b1.HasIndex("ProductId");
@@ -144,7 +188,51 @@ namespace Catalog.PublicApi.Migrations
                                 .HasForeignKey("ProductId");
                         });
 
+                    b.OwnsMany("Catalog.Domain.ValueObjects.Tag", "Tags", b1 =>
+                        {
+                            b1.Property<Guid>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<string>("Name")
+                                .IsRequired()
+                                .HasMaxLength(255)
+                                .IsUnicode(false)
+                                .HasColumnType("varchar(255)");
+
+                            b1.Property<Guid>("ProductId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.HasKey("Id");
+
+                            b1.HasIndex("ProductId");
+
+                            b1.ToTable("ProductTags", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("ProductId");
+                        });
+
                     b.Navigation("Images");
+
+                    b.Navigation("Tags");
+                });
+
+            modelBuilder.Entity("ProductCategory", b =>
+                {
+                    b.HasOne("Catalog.Domain.Entities.ProductAggregate.Category", null)
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_ProductCategory_Categories_CategoryId");
+
+                    b.HasOne("Catalog.Domain.Entities.ProductAggregate.Product", null)
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_ProductCategory_Products_ProductId");
                 });
 #pragma warning restore 612, 618
         }

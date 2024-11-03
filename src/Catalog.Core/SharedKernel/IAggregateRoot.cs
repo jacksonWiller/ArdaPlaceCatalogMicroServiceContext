@@ -4,3 +4,4 @@ namespace Catalog.Core.SharedKernel;
 /// Represents an interface for aggregate roots.
 /// </summary>
 public interface IAggregateRoot;
+

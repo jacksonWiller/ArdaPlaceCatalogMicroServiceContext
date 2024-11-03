@@ -54,7 +54,6 @@ public class GetAllProductsQueryHandler : IRequestHandler<GetAllProductsQuery, R
                 Id = p.Id,
                 Name = p.Name,
                 Description = p.Description,
-                Category = p.Category,
                 Price = p.Price,
                 StockQuantity = p.StockQuantity,
                 SKU = p.SKU,
