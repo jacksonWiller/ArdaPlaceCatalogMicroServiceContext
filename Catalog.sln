@@ -9,7 +9,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Catalog.Core", "Catalog.Cor
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3-Catalog.Domain", "3-Catalog.Domain", "{164B73C8-DBC1-4B5D-9938-F5AD4E862E53}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1-Catalog.PublicApi", "1-Catalog.PublicApi", "{1F13CB14-7876-4880-9EF0-4EC2DA0BC34C}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1-Catalog.Presentation", "1-Catalog.Presentation", "{1F13CB14-7876-4880-9EF0-4EC2DA0BC34C}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "4-Catalog.Infrastructure", "4-Catalog.Infrastructure", "{C4433E1B-A1C6-4904-8D00-D2425FCDFBB8}"
 EndProject

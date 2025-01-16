@@ -1,9 +1,10 @@
 using System;
 
-namespace Catalog.Application.Products.Dtos;
-public class CategoryDto
+namespace Catalog.Application.Categories.Dtos;
+public class ProductDto
 {
+
     public Guid Id { get; set; }
     public string Name { get; set; }
-    public string Description { get; set; }
+
 }

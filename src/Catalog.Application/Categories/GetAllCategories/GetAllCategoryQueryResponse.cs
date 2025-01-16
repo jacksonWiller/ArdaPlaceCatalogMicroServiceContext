@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using Ardalis.Result;
-using Catalog.Application.Products.Dtos;
+using Catalog.Application.Categories.Dtos;
 using Catalog.Core.SharedKernel;
 
 namespace Catalog.Application.Categories.GetAllCategorys;

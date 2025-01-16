@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Text.Json.Serialization;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Catalog.Core.Extensions;
 using Catalog.Core.SharedKernel;
@@ -92,7 +94,14 @@ public class UnitOfWork : IUnitOfWork
 
         // Convert domain events to event stores
         var eventStores = domainEvents
-            .ConvertAll(@event => new EventStore(@event.AggregateId, @event.GetGenericTypeName(), Convert.ChangeType(@event, @event.GetType()).ToJson()));
+            .ConvertAll(@event => new EventStore(
+                @event.AggregateId,
+                @event.GetGenericTypeName(),
+                JsonSerializer.Serialize(@event, new JsonSerializerOptions
+                {
+                    ReferenceHandler = ReferenceHandler.IgnoreCycles
+                })
+            ));
 
         // Clear domain events from the entities
         domainEntities.ForEach(entry => entry.Entity.ClearDomainEvents());

@@ -6,13 +6,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using Ardalis.Result;
 using Ardalis.Result.FluentValidation;
-using Catalog.Application.Products.Dtos;
+using Catalog.Application.Categories.Dtos;
 using Catalog.Domain.DataContext;
 using Catalog.Domain.Entities.ProductAggregate;
 using FluentValidation;
 using Fop;
 using Fop.FopExpression;
 using MediatR;
+using ProductDto = Catalog.Application.Categories.Dtos.ProductDto;
 
 namespace Catalog.Application.Categories.GetAllCategorys;
 
@@ -36,8 +37,8 @@ public class GetAllCategorysQueryHandler : IRequestHandler<GetAllCategoriesQuery
             return Result<GetAllCategorysQueryResponse>.Invalid(validationResult.AsErrors());
         }
         var fopRequest = FopExpressionBuilder<Category>.Build(request.Filter, request.Order, request.PageNumber, request.PageSize);
-
-        var (filteredCategorys, totalCount) = _context.Set<Category>().ApplyFop(fopRequest);
+ 
+        var (filteredCategorys, totalCount) = _context.Set<Category>().ApplyFop(fopRequest) ;
 
         var pagedInfo = new PagedInfo(
                                         request.PageNumber,
@@ -54,6 +55,11 @@ public class GetAllCategorysQueryHandler : IRequestHandler<GetAllCategoriesQuery
                 Id = p.Id,
                 Name = p.Name,
                 Description = p.Description,
+                //Products = p.Products.Select(p => new ProductDto
+                //{
+                //    Id = p.Id,
+                //    Name = p.Name,
+                //}).ToList()
             })]
         };
 

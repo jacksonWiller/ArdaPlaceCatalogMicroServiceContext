@@ -8,8 +8,9 @@ using Catalog.Application.Categories.CreateCategory;
 using Catalog.Application.Categories.UpdateCategory;
 using Catalog.Application.Categories.DeleteCategory;
 using Catalog.Application.Categories.GetCategoryById;
-using Ardalis.Result;
 using Catalog.Application.Categories.GetAllCategorys;
+using Ardalis.Result;
+
 
 namespace Catalog.PublicApi.Controllers.V1;
 

@@ -14,7 +14,7 @@ public class Product : BaseEntity, IAggregateRoot
     public int StockQuantity { get; private set; }
     public string SKU { get; private set; }
     public string Brand { get; private set; }
-    public List<Category> Categories { get; private set; }
+    public List<Category> Categories { get; private set; } = [];
     public List<Image> Images { get; private set; } = [];
     public List<Tag> Tags { get; private set; }
 

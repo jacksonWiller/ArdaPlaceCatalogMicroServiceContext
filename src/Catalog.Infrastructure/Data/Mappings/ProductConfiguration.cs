@@ -17,17 +17,17 @@ internal class ProductConfiguration : IEntityTypeConfiguration<Product>
 
         builder
             .Property(product => product.Name)
-            .IsRequired() // NOT NULL
+            .IsRequired()
             .HasMaxLength(100);
 
         builder
             .Property(product => product.Description)
-            .IsRequired() // NOT NULL
+            .IsRequired()
             .HasMaxLength(100);
 
         builder
             .Property(product => product.Price)
-            .IsRequired() // NOT NULL
+            .IsRequired()
             .HasColumnType("decimal(18,2)");
 
         builder
@@ -36,12 +36,12 @@ internal class ProductConfiguration : IEntityTypeConfiguration<Product>
 
         builder
             .Property(product => product.SKU)
-            .IsRequired() // NOT NULL
+            .IsRequired() 
             .HasMaxLength(100);
 
         builder
             .Property(product => product.Brand)
-            .IsRequired() // NOT NULL
+            .IsRequired()
             .HasMaxLength(100);
 
         // Configuração para a coleção de imagens

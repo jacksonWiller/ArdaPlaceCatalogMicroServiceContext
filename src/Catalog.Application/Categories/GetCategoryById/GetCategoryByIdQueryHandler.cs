@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Ardalis.Result;
 using Ardalis.Result.FluentValidation;
+using Catalog.Application.Categories.Dtos;
 using Catalog.Domain.DataContext;
 using Catalog.Domain.Entities.ProductAggregate;
 using FluentValidation;
@@ -31,10 +32,21 @@ public class GetCategoryByIdQueryHandler : IRequestHandler<GetCategoryByIdQuery,
         }
 
         var category = await _context.Set<Category>().Where(p => p.Id == request.Id && p._isDeleted == false).SingleOrDefaultAsync(cancellationToken);
+
         if (category == null)
             return Result.NotFound($"No Category found by Id: {request.Id}");
 
-        var response = new GetCategoryByIdQueryResponse(category);
+
+        var response = new GetCategoryByIdQueryResponse
+        {
+            Name = category.Name,
+            //Products = category.Products.Select(p => new ProductDto
+            //{
+            //    Id = p.Id,
+            //    Name = p.Name,
+            //}).ToList()
+        };
+        
         return Result<GetCategoryByIdQueryResponse>.Success(response, "Category created successfully.");
     }
 

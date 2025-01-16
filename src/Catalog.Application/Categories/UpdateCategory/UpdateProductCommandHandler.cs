@@ -33,7 +33,7 @@ public class UpdateCategoryCommandHandler : IRequestHandler<UpdateCategoryComman
             return Result<UpdateCategoryResponse>.Invalid(validationResult.AsErrors());
         }
 
-        var category = await _context.Set<Category>().Where(p => p.Id == request.Id && p._isDeleted).SingleOrDefaultAsync(cancellationToken);
+        var category = await _context.Set<Category>().Where(p => p.Id == request.Id && !p._isDeleted).SingleOrDefaultAsync(cancellationToken);
         if (category == null)
             return Result.NotFound($"No Category found by Id: {request.Id}");
 

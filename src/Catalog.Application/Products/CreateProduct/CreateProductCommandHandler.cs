@@ -15,6 +15,9 @@ using System;
 using Catalog.Application.Products.Dtos;
 using System.Collections.Generic;
 using Catalog.Domain.ValueObjects;
+using System.Linq;
+using Microsoft.EntityFrameworkCore;
+using Catalog.Domain.Entities.ProductAggregate.Events.Products;
 
 namespace Catalog.Application.Products.CreateProduct;
 
@@ -88,15 +91,20 @@ public class CreateProductCommandHandler : IRequestHandler<CreateProductCommand,
 
         var product = new Product(
             request.Name,
-            request.Category,
+            request.Description,
             request.Price,
             request.StockQuantity,
             request.SKU,
             request.Brand
         );
 
-        
+        var categories = await _context.Set<Category>()
+        .Where(c => request.CategoriesId.Contains(c.Id) && !c._isDeleted)
+        .ToListAsync(cancellationToken);
+
         product.AddImage(images);
+        product.AddCategory(categories);
+        product.AddTags(request.Tags);
 
         _context.Set<Product>().Add(product);
         await _unitOfWork.SaveChangesAsync();
