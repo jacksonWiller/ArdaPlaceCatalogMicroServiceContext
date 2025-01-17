@@ -28,7 +28,7 @@ services.AddScoped<ICatalogDbContext, CatalogDbContext>()
 
 // Adicionar contexto de banco de dados
 services.AddDbContext<CatalogDbContext>(options =>
-    options.UseSqlServer(configuration.GetConnectionString("SqlConnection"), sqlServerOptions =>
+    options.UseNpgsql(configuration.GetConnectionString("SqlConnection"), sqlServerOptions =>
     {
         sqlServerOptions.MigrationsAssembly("Catalog.PublicApi"); // Certifique-se de que o assembly de migrações está correto
     }));

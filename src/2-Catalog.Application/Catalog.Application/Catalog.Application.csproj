@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
   </PropertyGroup>
-  
+
   <ItemGroup>
     <PackageReference Include="Ardalis.Result.FluentValidation" />
     <PackageReference Include="Ardalis.Result" />
@@ -16,8 +16,9 @@
   </ItemGroup>
   
   <ItemGroup>
-    <ProjectReference Include="..\Catalog.Core\Catalog.Core.csproj" />
-    <ProjectReference Include="..\Catalog.Domain\Catalog.Domain.csproj" />
+    <ProjectReference Include="..\..\3-Catalog.Domain\Catalog.Domain\Catalog.Domain.csproj" />
+    <ProjectReference Include="..\..\4-Catalog.Infrastructure\Catalog.Infrastructure\Catalog.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Catalog.Core\Catalog.Core.csproj" />
   </ItemGroup>
   
 </Project>
