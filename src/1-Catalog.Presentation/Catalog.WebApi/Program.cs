@@ -10,6 +10,7 @@ using Catalog.Infrastructure.Data;
 using Catalog.Infrastructure.Data.Context;
 using Catalog.PublicApi.Extensions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,14 +25,23 @@ var services = builder.Services;
 
 // Adicionar infraestrutura
 services.AddScoped<ICatalogDbContext, CatalogDbContext>()
-        .AddScoped<IUnitOfWork, UnitOfWork>();
+.AddScoped<IUnitOfWork, UnitOfWork>();
 
-// Adicionar contexto de banco de dados
+var options = configuration.GetOptions<ConnectionOptions>();
+
+//Adicionar contexto de banco de dados
 services.AddDbContext<CatalogDbContext>(options =>
-    options.UseNpgsql(configuration.GetConnectionString("SqlConnection"), sqlServerOptions =>
+    options.UseNpgsql(configuration.GetConnectionString("Host=localhost;Port=5432;Database=Catalog;Username=postgres;Password=postgres"), sqlOptions =>
     {
-        sqlServerOptions.MigrationsAssembly("Catalog.PublicApi"); // Certifique-se de que o assembly de migrações está correto
+        sqlOptions.MigrationsAssembly("Catalog.WebApi");
     }));
+
+//string connectionString = builder.Configuration.GetConnectionString("default");
+//builder.Services.AddDbContext<CatalogDbContext>(op => op.UseNpgsql("Host=localhost;Port=5432;Database=Catalog;Username=postgres;Password=postgres"));
+
+//services.AddDbContext<CatalogDbContext>(options => {
+//    options.UseNpgsql("Host=localhost;Port=5432;Database=Catalog;Username=postgres;Password=postgres");
+//});
 
 // Adicionar manipuladores de comando
 services.AddCommandHandlers();

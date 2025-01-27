@@ -9,7 +9,6 @@ internal static class WebApplicationExtensions
     {
         await using var serviceScope = app.Services.CreateAsyncScope();
 
-
         app.Logger.LogInformation("----- AutoMapper: mappings are being validated...");
 
         app.Logger.LogInformation("----- AutoMapper: mappings are valid!");
@@ -28,12 +27,10 @@ internal static class WebApplicationExtensions
     private static async Task MigrateDataBasesAsync(this WebApplication app, AsyncServiceScope serviceScope)
     {
         await using var writeDbContext = serviceScope.ServiceProvider.GetRequiredService<CatalogDbContext>();
-        //await using var eventStoreDbContext = serviceScope.ServiceProvider.GetRequiredService<EventStoreDbContext>();
 
         try
         {
             await app.MigrateDbContextAsync(writeDbContext);
-            //await app.MigrateDbContextAsync(eventStoreDbContext);
         }
         catch (Exception ex)
         {

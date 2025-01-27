@@ -13,6 +13,11 @@
     "mssql1": {
       "type": "mssql",
       "connectionId": "ConnectionStrings:SqlConnection"
+    },
+    "postgresql1": {
+      "type": "postgresql",
+      "connectionId": "SqlConnection",
+      "dynamicId": null
     }
   }
 }

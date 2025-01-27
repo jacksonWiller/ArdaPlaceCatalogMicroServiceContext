@@ -1,9 +1,9 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace Catalog.PublicApi.Migrations
+namespace Catalog.WebApi.Migrations
 {
     /// <inheritdoc />
     public partial class Initial : Migration
@@ -15,10 +15,10 @@ namespace Catalog.PublicApi.Migrations
                 name: "Categories",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "varchar(100)", unicode: false, maxLength: 100, nullable: false),
-                    Description = table.Column<string>(type: "varchar(100)", unicode: false, maxLength: 100, nullable: false),
-                    _isDeleted = table.Column<bool>(type: "bit", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "character varying(100)", unicode: false, maxLength: 100, nullable: false),
+                    Description = table.Column<string>(type: "character varying(100)", unicode: false, maxLength: 100, nullable: false),
+                    _isDeleted = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -29,11 +29,11 @@ namespace Catalog.PublicApi.Migrations
                 name: "EventStores",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Data = table.Column<string>(type: "NVARCHAR(MAX)", unicode: false, maxLength: 255, nullable: false, comment: "JSON serialized event"),
-                    MessageType = table.Column<string>(type: "varchar(255)", unicode: false, maxLength: 255, nullable: true),
-                    AggregateId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    OccurredOn = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    MessageType = table.Column<string>(type: "character varying(255)", unicode: false, maxLength: 255, nullable: true),
+                    AggregateId = table.Column<Guid>(type: "uuid", nullable: false),
+                    OccurredOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -44,14 +44,14 @@ namespace Catalog.PublicApi.Migrations
                 name: "Products",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "varchar(100)", unicode: false, maxLength: 100, nullable: false),
-                    Description = table.Column<string>(type: "varchar(100)", unicode: false, maxLength: 100, nullable: false),
-                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "character varying(100)", unicode: false, maxLength: 100, nullable: false),
+                    Description = table.Column<string>(type: "character varying(100)", unicode: false, maxLength: 100, nullable: false),
+                    Price = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
                     StockQuantity = table.Column<int>(type: "int", nullable: false),
-                    SKU = table.Column<string>(type: "varchar(100)", unicode: false, maxLength: 100, nullable: false),
-                    Brand = table.Column<string>(type: "varchar(100)", unicode: false, maxLength: 100, nullable: false),
-                    _isDeleted = table.Column<bool>(type: "bit", nullable: false)
+                    SKU = table.Column<string>(type: "character varying(100)", unicode: false, maxLength: 100, nullable: false),
+                    Brand = table.Column<string>(type: "character varying(100)", unicode: false, maxLength: 100, nullable: false),
+                    _isDeleted = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -62,8 +62,8 @@ namespace Catalog.PublicApi.Migrations
                 name: "ProductCategory",
                 columns: table => new
                 {
-                    CategoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ProductId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    CategoryId = table.Column<Guid>(type: "uuid", nullable: false),
+                    ProductId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -86,13 +86,13 @@ namespace Catalog.PublicApi.Migrations
                 name: "ProductImages",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "varchar(255)", unicode: false, maxLength: 255, nullable: false),
-                    Prefix = table.Column<string>(type: "varchar(255)", unicode: false, maxLength: 255, nullable: false),
-                    Url = table.Column<string>(type: "varchar(255)", unicode: false, maxLength: 255, nullable: false),
-                    Width = table.Column<string>(type: "varchar(255)", unicode: false, maxLength: 255, nullable: true),
-                    Height = table.Column<string>(type: "varchar(255)", unicode: false, maxLength: 255, nullable: true),
-                    ProductId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "character varying(255)", unicode: false, maxLength: 255, nullable: false),
+                    Prefix = table.Column<string>(type: "character varying(255)", unicode: false, maxLength: 255, nullable: false),
+                    Url = table.Column<string>(type: "character varying(255)", unicode: false, maxLength: 255, nullable: false),
+                    Width = table.Column<string>(type: "character varying(255)", unicode: false, maxLength: 255, nullable: true),
+                    Height = table.Column<string>(type: "character varying(255)", unicode: false, maxLength: 255, nullable: true),
+                    ProductId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -109,9 +109,9 @@ namespace Catalog.PublicApi.Migrations
                 name: "ProductTags",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "varchar(255)", unicode: false, maxLength: 255, nullable: false),
-                    ProductId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "character varying(255)", unicode: false, maxLength: 255, nullable: false),
+                    ProductId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {

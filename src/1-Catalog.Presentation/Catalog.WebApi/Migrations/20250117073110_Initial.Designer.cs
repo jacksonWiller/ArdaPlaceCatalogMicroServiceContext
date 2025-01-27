@@ -3,16 +3,16 @@ using System;
 using Catalog.Infrastructure.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace Catalog.PublicApi.Migrations
+namespace Catalog.WebApi.Migrations
 {
     [DbContext(typeof(CatalogDbContext))]
-    [Migration("20241103233720_Initial")]
+    [Migration("20250117073110_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -22,17 +22,17 @@ namespace Catalog.PublicApi.Migrations
             modelBuilder
                 .UseCollation("Latin1_General_CI_AI")
                 .HasAnnotation("ProductVersion", "8.0.3")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+                .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
             modelBuilder.Entity("Catalog.Core.SharedKernel.EventStore", b =>
                 {
                     b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<Guid>("AggregateId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Data")
                         .IsRequired()
@@ -44,10 +44,10 @@ namespace Catalog.PublicApi.Migrations
                     b.Property<string>("MessageType")
                         .HasMaxLength(255)
                         .IsUnicode(false)
-                        .HasColumnType("varchar(255)");
+                        .HasColumnType("character varying(255)");
 
                     b.Property<DateTime>("OccurredOn")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
@@ -59,22 +59,22 @@ namespace Catalog.PublicApi.Migrations
             modelBuilder.Entity("Catalog.Domain.Entities.ProductAggregate.Category", b =>
                 {
                     b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(100)
                         .IsUnicode(false)
-                        .HasColumnType("varchar(100)");
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
                         .IsUnicode(false)
-                        .HasColumnType("varchar(100)");
+                        .HasColumnType("character varying(100)");
 
                     b.Property<bool>("_isDeleted")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean");
 
                     b.HasKey("Id");
 
@@ -84,25 +84,25 @@ namespace Catalog.PublicApi.Migrations
             modelBuilder.Entity("Catalog.Domain.Entities.ProductAggregate.Product", b =>
                 {
                     b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Brand")
                         .IsRequired()
                         .HasMaxLength(100)
                         .IsUnicode(false)
-                        .HasColumnType("varchar(100)");
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(100)
                         .IsUnicode(false)
-                        .HasColumnType("varchar(100)");
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
                         .IsUnicode(false)
-                        .HasColumnType("varchar(100)");
+                        .HasColumnType("character varying(100)");
 
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
@@ -111,13 +111,13 @@ namespace Catalog.PublicApi.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .IsUnicode(false)
-                        .HasColumnType("varchar(100)");
+                        .HasColumnType("character varying(100)");
 
                     b.Property<int>("StockQuantity")
                         .HasColumnType("int");
 
                     b.Property<bool>("_isDeleted")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean");
 
                     b.HasKey("Id");
 
@@ -127,10 +127,10 @@ namespace Catalog.PublicApi.Migrations
             modelBuilder.Entity("ProductCategory", b =>
                 {
                     b.Property<Guid>("CategoryId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<Guid>("ProductId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.HasKey("CategoryId", "ProductId");
 
@@ -145,38 +145,38 @@ namespace Catalog.PublicApi.Migrations
                         {
                             b1.Property<Guid>("Id")
                                 .ValueGeneratedOnAdd()
-                                .HasColumnType("uniqueidentifier");
+                                .HasColumnType("uuid");
 
                             b1.Property<string>("Height")
                                 .HasMaxLength(255)
                                 .IsUnicode(false)
-                                .HasColumnType("varchar(255)");
+                                .HasColumnType("character varying(255)");
 
                             b1.Property<string>("Name")
                                 .IsRequired()
                                 .HasMaxLength(255)
                                 .IsUnicode(false)
-                                .HasColumnType("varchar(255)");
+                                .HasColumnType("character varying(255)");
 
                             b1.Property<string>("Prefix")
                                 .IsRequired()
                                 .HasMaxLength(255)
                                 .IsUnicode(false)
-                                .HasColumnType("varchar(255)");
+                                .HasColumnType("character varying(255)");
 
                             b1.Property<Guid>("ProductId")
-                                .HasColumnType("uniqueidentifier");
+                                .HasColumnType("uuid");
 
                             b1.Property<string>("Url")
                                 .IsRequired()
                                 .HasMaxLength(255)
                                 .IsUnicode(false)
-                                .HasColumnType("varchar(255)");
+                                .HasColumnType("character varying(255)");
 
                             b1.Property<string>("Width")
                                 .HasMaxLength(255)
                                 .IsUnicode(false)
-                                .HasColumnType("varchar(255)");
+                                .HasColumnType("character varying(255)");
 
                             b1.HasKey("Id");
 
@@ -192,16 +192,16 @@ namespace Catalog.PublicApi.Migrations
                         {
                             b1.Property<Guid>("Id")
                                 .ValueGeneratedOnAdd()
-                                .HasColumnType("uniqueidentifier");
+                                .HasColumnType("uuid");
 
                             b1.Property<string>("Name")
                                 .IsRequired()
                                 .HasMaxLength(255)
                                 .IsUnicode(false)
-                                .HasColumnType("varchar(255)");
+                                .HasColumnType("character varying(255)");
 
                             b1.Property<Guid>("ProductId")
-                                .HasColumnType("uniqueidentifier");
+                                .HasColumnType("uuid");
 
                             b1.HasKey("Id");
 
