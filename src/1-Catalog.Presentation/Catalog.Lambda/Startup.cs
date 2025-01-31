@@ -1,5 +1,4 @@
 using System.IO;
-using DotNetServerless.Lambda.Extensions;
 using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

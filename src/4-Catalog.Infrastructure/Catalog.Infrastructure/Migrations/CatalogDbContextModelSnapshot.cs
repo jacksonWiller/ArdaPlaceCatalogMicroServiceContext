@@ -3,20 +3,17 @@ using System;
 using Catalog.Infrastructure.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace Catalog.WebApi.Migrations
+namespace Catalog.Infrastructure.Migrations
 {
     [DbContext(typeof(CatalogDbContext))]
-    [Migration("20250117073110_Initial")]
-    partial class Initial
+    partial class CatalogDbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -38,7 +35,7 @@ namespace Catalog.WebApi.Migrations
                         .IsRequired()
                         .HasMaxLength(255)
                         .IsUnicode(false)
-                        .HasColumnType("NVARCHAR(MAX)")
+                        .HasColumnType("text")
                         .HasComment("JSON serialized event");
 
                     b.Property<string>("MessageType")
@@ -65,13 +62,13 @@ namespace Catalog.WebApi.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .IsUnicode(false)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("varchar(100)");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
                         .IsUnicode(false)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("varchar(100)");
 
                     b.Property<bool>("_isDeleted")
                         .HasColumnType("boolean");
@@ -105,7 +102,7 @@ namespace Catalog.WebApi.Migrations
                         .HasColumnType("character varying(100)");
 
                     b.Property<decimal>("Price")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("numeric(18,2)");
 
                     b.Property<string>("SKU")
                         .IsRequired()

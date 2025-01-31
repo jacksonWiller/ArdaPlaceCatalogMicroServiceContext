@@ -134,8 +134,8 @@ public class UnitOfWork : IUnitOfWork
         await Task.WhenAll(tasks);
 
         // Store the event stores using _eventStoreRepository.
-        _context.Set<EventStore>().AddRange(eventStores);
-        await _context.SaveChangesAsync();
+        //_context.Set<EventStore>().AddRange(eventStores);
+        //await _context.SaveChangesAsync();
     }
 
     #region IDisposable

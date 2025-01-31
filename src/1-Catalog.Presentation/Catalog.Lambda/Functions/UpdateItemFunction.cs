@@ -7,10 +7,10 @@ using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 
-namespace DotNetServerless.Lambda.Functions
+namespace DotNetServerless.Lambda.Functions;
+
+public class UpdateItemFunction
 {
-    public class UpdateItemFunction
-  {
     private readonly IServiceProvider _serviceProvider;
 
     public UpdateItemFunction() : this(Startup
@@ -31,5 +31,4 @@ namespace DotNetServerless.Lambda.Functions
 
       return new APIGatewayProxyResponse { StatusCode = 200, Body = JsonConvert.SerializeObject(result) };
     }
-  }
 }

@@ -28,7 +28,7 @@ internal class ProductConfiguration : IEntityTypeConfiguration<Product>
         builder
             .Property(product => product.Price)
             .IsRequired()
-            .HasColumnType("decimal(18,2)");
+            .HasColumnType("numeric(18,2)");
 
         builder
             .Property(product => product.StockQuantity)

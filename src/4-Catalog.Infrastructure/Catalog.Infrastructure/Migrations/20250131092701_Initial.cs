@@ -1,9 +1,9 @@
-using System;
+﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace Catalog.WebApi.Migrations
+namespace Catalog.Infrastructure.Migrations
 {
     /// <inheritdoc />
     public partial class Initial : Migration
@@ -16,8 +16,8 @@ namespace Catalog.WebApi.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Name = table.Column<string>(type: "character varying(100)", unicode: false, maxLength: 100, nullable: false),
-                    Description = table.Column<string>(type: "character varying(100)", unicode: false, maxLength: 100, nullable: false),
+                    Name = table.Column<string>(type: "varchar(100)", unicode: false, maxLength: 100, nullable: false),
+                    Description = table.Column<string>(type: "varchar(100)", unicode: false, maxLength: 100, nullable: false),
                     _isDeleted = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
@@ -30,7 +30,7 @@ namespace Catalog.WebApi.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Data = table.Column<string>(type: "NVARCHAR(MAX)", unicode: false, maxLength: 255, nullable: false, comment: "JSON serialized event"),
+                    Data = table.Column<string>(type: "text", unicode: false, maxLength: 255, nullable: false, comment: "JSON serialized event"),
                     MessageType = table.Column<string>(type: "character varying(255)", unicode: false, maxLength: 255, nullable: true),
                     AggregateId = table.Column<Guid>(type: "uuid", nullable: false),
                     OccurredOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)

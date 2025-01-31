@@ -7,21 +7,17 @@ using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 
-namespace DotNetServerless.Lambda.Functions
+namespace DotNetServerless.Lambda.Functions;
+
+public class GetItemFunction(IServiceProvider serviceProvider)
 {
-    public class GetItemFunction
-  {
-    private readonly IServiceProvider _serviceProvider;
+    private readonly IServiceProvider _serviceProvider = serviceProvider;
 
     public GetItemFunction() : this(Startup
-      .BuildContainer()
+    .BuildContainer()
     .BuildServiceProvider())
     {
-    }
 
-    public GetItemFunction(IServiceProvider serviceProvider)
-    {
-      _serviceProvider = serviceProvider;
     }
 
     [LambdaSerializer(typeof(Amazon.Lambda.Serialization.Json.JsonSerializer))]
@@ -34,5 +30,4 @@ namespace DotNetServerless.Lambda.Functions
         new APIGatewayProxyResponse { StatusCode = 404 } :
         new APIGatewayProxyResponse { StatusCode = 200, Body = JsonConvert.SerializeObject(result) };
     }
-  }
 }

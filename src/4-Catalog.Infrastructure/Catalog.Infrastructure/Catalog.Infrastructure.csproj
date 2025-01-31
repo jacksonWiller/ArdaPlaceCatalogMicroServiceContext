@@ -6,6 +6,8 @@
 
   <ItemGroup>
     <PackageReference Include="EntityFrameworkCore.DataEncryption" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" />
     <PackageReference Include="MediatR" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Analyzers" />
@@ -14,10 +16,15 @@
     <PackageReference Include="Microsoft.Extensions.Caching.Redis" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
     <PackageReference Include="Microsoft.Extensions.Identity.Core" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
     <PackageReference Include="MongoDB.Bson" />
     <PackageReference Include="MongoDB.Driver" />
     <PackageReference Include="Polly" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.1" />
   </ItemGroup>
 
   <ItemGroup>

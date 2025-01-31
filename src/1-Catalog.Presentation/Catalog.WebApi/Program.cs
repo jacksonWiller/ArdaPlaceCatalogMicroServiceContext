@@ -21,7 +21,7 @@ var configuration = builder.Configuration;
 var services = builder.Services;
 
 // Configurar AppSettings
-//services.ConfigureAppSettings();
+services.ConfigureAppSettings();
 
 // Adicionar infraestrutura
 services.AddScoped<ICatalogDbContext, CatalogDbContext>()
@@ -30,18 +30,19 @@ services.AddScoped<ICatalogDbContext, CatalogDbContext>()
 var options = configuration.GetOptions<ConnectionOptions>();
 
 //Adicionar contexto de banco de dados
-services.AddDbContext<CatalogDbContext>(options =>
-    options.UseNpgsql(configuration.GetConnectionString("Host=localhost;Port=5432;Database=Catalog;Username=postgres;Password=postgres"), sqlOptions =>
-    {
-        sqlOptions.MigrationsAssembly("Catalog.WebApi");
-    }));
+//services.AddDbContext<CatalogDbContext>(options =>
+//    options.UseNpgsql(configuration.GetConnectionString("Host=localhost;Port=5432;Database=Catalog;Username=postgres;Password=postgres"), sqlOptions =>
+//    {
+//        sqlOptions.MigrationsAssembly("Catalog.WebApi");
+//    }));
 
 //string connectionString = builder.Configuration.GetConnectionString("default");
 //builder.Services.AddDbContext<CatalogDbContext>(op => op.UseNpgsql("Host=localhost;Port=5432;Database=Catalog;Username=postgres;Password=postgres"));
 
-//services.AddDbContext<CatalogDbContext>(options => {
-//    options.UseNpgsql("Host=localhost;Port=5432;Database=Catalog;Username=postgres;Password=postgres");
-//});
+services.AddDbContext<CatalogDbContext>(options =>
+{
+    options.UseNpgsql("Host=localhost;Port=5432;Database=CatalogContext;Username=postgres;Password=postgres");
+});
 
 // Adicionar manipuladores de comando
 services.AddCommandHandlers();

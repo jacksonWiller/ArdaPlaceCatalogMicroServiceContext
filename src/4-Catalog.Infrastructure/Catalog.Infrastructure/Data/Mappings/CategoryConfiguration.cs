@@ -11,19 +11,17 @@ internal class CategoryConfiguration : IEntityTypeConfiguration<Category>
     public void Configure(EntityTypeBuilder<Category> builder)
     {
         builder.ToTable("Categories");
-
         builder
             .ConfigureBaseEntity();
-
         builder
             .Property(category => category.Name)
             .IsRequired()
-            .HasMaxLength(100);
-
+            .HasMaxLength(100)
+            .HasColumnType("varchar(100)"); // Explicitamente definindo o tipo
         builder
             .Property(category => category.Description)
             .IsRequired()
-            .HasMaxLength(100);
-
+            .HasMaxLength(100)
+            .HasColumnType("varchar(100)"); // Explicitamente definindo o tipo
     }
 }
