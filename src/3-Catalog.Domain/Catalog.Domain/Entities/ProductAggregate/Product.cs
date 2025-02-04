@@ -16,7 +16,7 @@ public class Product : BaseEntity, IAggregateRoot
     public string Brand { get; private set; }
     public List<Category> Categories { get; private set; } = [];
     public List<Image> Images { get; private set; } = [];
-    public List<Tag> Tags { get; private set; }
+    public List<Tag> Tags { get; private set; } = [];
 
     public bool _isDeleted { get; private set; } = false;
     
@@ -64,9 +64,13 @@ public class Product : BaseEntity, IAggregateRoot
         Images = images;
     }
 
-    public void AddTags(List<string> name)
+    public void AddTags(List<string> names)
     {
-        Tags = name.Select(tagName => new Tag(tagName)).ToList();
+        foreach (var name in names)
+        {
+            Tags.Add(new Tag(name));
+        }
+
         AddDomainEvent(new ProductUpdatedEvent(this));
     }
 

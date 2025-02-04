@@ -41,7 +41,7 @@ var options = configuration.GetOptions<ConnectionOptions>();
 
 services.AddDbContext<CatalogDbContext>(options =>
 {
-    options.UseNpgsql("Host=localhost;Port=5432;Database=CatalogContext;Username=postgres;Password=postgres");
+    options.UseNpgsql("Host=fullendpoint.cluster-custom-cbecewa044ei.us-east-1.rds.amazonaws.com;Port=5432;Database=CatalogDB;Username=curso_aws;Password=postgres91162822");
 });
 
 // Adicionar manipuladores de comando

@@ -104,7 +104,7 @@ public class CreateProductCommandHandler : IRequestHandler<CreateProductCommand,
 
         product.AddImage(images);
         product.AddCategory(categories);
-        product.AddTags(request.Tags);
+        //product.AddTags(request.Tags);
 
         _context.Set<Product>().Add(product);
         await _unitOfWork.SaveChangesAsync();

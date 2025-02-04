@@ -1,0 +1,25 @@
+# Serverless directories
+.serverless
+.build/
+/.build
+/.build/
+**/build
+
+# package directories
+node_modules
+node_modules2
+jspm_packages
+
+# Webpack directories
+.webpack
+
+# Yarn
+yarn-error.log
+
+# Coverage
+coverage
+
+# Dotenv
+!.env.example
+.env*
+
