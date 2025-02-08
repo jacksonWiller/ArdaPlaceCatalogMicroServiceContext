@@ -1,11 +1,11 @@
 using Microsoft.EntityFrameworkCore;
-using Catalog.Infrastructure.Data.Mappings;
+using Catalog.Infrastructure.PostgreSql.Data.Mappings;
 
 using Catalog.Domain.Entities.ProductAggregate;
 using Catalog.Domain.DataContext;
 using Catalog.Core.SharedKernel;
 
-namespace Catalog.Infrastructure.Data.Context;
+namespace Catalog.Infrastructure.PostgreSql.Data.Context;
 
 public class CatalogDbContext(DbContextOptions<CatalogDbContext> dbOptions) : BaseDbContext<CatalogDbContext>(dbOptions), ICatalogDbContext
 {

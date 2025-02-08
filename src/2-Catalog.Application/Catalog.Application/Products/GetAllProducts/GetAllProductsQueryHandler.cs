@@ -35,6 +35,7 @@ public class GetAllProductsQueryHandler : IRequestHandler<GetAllProductsQuery, R
         {
             return Result<GetAllProductsQueryResponse>.Invalid(validationResult.AsErrors());
         }
+
         var fopRequest = FopExpressionBuilder<Product>.Build(request.Filter, request.Order, request.PageNumber, request.PageSize);
 
         var (filteredProducts, totalCount) = _context.Set<Product>().ApplyFop(fopRequest);

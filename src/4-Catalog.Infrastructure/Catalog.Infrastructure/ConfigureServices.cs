@@ -1,12 +1,12 @@
 using System.Diagnostics.CodeAnalysis;
 using Catalog.Core.SharedKernel;
 using Catalog.Domain.DataContext;
-using Catalog.Infrastructure.Data;
-using Catalog.Infrastructure.Data.Context;
-using Catalog.Infrastructure.Data.Services;
+using Catalog.Infrastructure.PostgreSql.Data;
+using Catalog.Infrastructure.PostgreSql.Data.Context;
+using Catalog.Infrastructure.PostgreSql.Data.Services;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Catalog.Infrastructure;
+namespace Catalog.Infrastructure.PostgreSql;
 
 [ExcludeFromCodeCoverage]
 public static class ConfigureServices

@@ -10,7 +10,7 @@ using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Catalog.Infrastructure.Data.Services;
+namespace Catalog.Infrastructure.PostgreSql.Data.Services;
 
 internal class DistributedCacheService : ICacheService
 {

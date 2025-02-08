@@ -1,8 +1,8 @@
-using Catalog.Infrastructure.Data.Extensions;
+using Catalog.Infrastructure.PostgreSql.Data.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 
-namespace Catalog.Infrastructure.Data.Context;
+namespace Catalog.Infrastructure.PostgreSql.Data.Context;
 
 public abstract class BaseDbContext<TContext>(DbContextOptions<TContext> dbOptions) : DbContext(dbOptions)
     where TContext : DbContext

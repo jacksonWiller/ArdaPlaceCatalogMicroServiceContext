@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using Catalog.Core.SharedKernel;
 using Catalog.Domain.Entities.ProductAggregate.Events.Products;
 using Catalog.Domain.ValueObjects;

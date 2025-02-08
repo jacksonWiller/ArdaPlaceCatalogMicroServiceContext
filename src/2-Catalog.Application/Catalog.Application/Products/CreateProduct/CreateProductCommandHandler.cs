@@ -1,7 +1,6 @@
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using System.Threading;
 using Ardalis.Result;
 using Ardalis.Result.FluentValidation;
@@ -10,14 +9,10 @@ using Catalog.Domain.DataContext;
 using Catalog.Domain.Entities.ProductAggregate;
 using FluentValidation;
 using MediatR;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using System;
-using Catalog.Application.Products.Dtos;
 using System.Collections.Generic;
 using Catalog.Domain.ValueObjects;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
-using Catalog.Domain.Entities.ProductAggregate.Events.Products;
 
 namespace Catalog.Application.Products.CreateProduct;
 

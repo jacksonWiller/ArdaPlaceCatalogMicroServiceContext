@@ -1,10 +1,9 @@
-using System.Collections.Generic;
 using Catalog.Domain.Entities.ProductAggregate;
-using Catalog.Infrastructure.Data.Extensions;
+using Catalog.Infrastructure.PostgreSql.Data.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Catalog.Infrastructure.Data.Mappings;
+namespace Catalog.Infrastructure.PostgreSql.Data.Mappings;
 
 internal class CategoryConfiguration : IEntityTypeConfiguration<Category>
 {

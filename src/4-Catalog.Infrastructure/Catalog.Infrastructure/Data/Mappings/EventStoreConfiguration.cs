@@ -2,7 +2,7 @@ using Catalog.Core.SharedKernel;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Catalog.Infrastructure.Data.Mappings;
+namespace Catalog.Infrastructure.PostgreSql.Data.Mappings;
 
 internal class EventStoreConfiguration : IEntityTypeConfiguration<EventStore>
 {

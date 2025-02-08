@@ -1,9 +1,9 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace Catalog.Infrastructure.Migrations
+namespace Catalog.Infrastructure.PostgreSql.Migrations
 {
     /// <inheritdoc />
     public partial class Initial : Migration

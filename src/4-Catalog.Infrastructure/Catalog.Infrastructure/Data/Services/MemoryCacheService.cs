@@ -9,7 +9,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Catalog.Infrastructure.Data.Services;
+namespace Catalog.Infrastructure.PostgreSql.Data.Services;
 
 internal class MemoryCacheService : ICacheService
 {

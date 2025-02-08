@@ -1,7 +1,7 @@
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 
-namespace Catalog.Infrastructure.Data.Extensions;
+namespace Catalog.Infrastructure.PostgreSql.Data.Extensions;
 
 internal static class ModelBuilderExtensions
 {

@@ -12,7 +12,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-namespace Catalog.Infrastructure.Data;
+namespace Catalog.Infrastructure.PostgreSql.Data;
 
 public class UnitOfWork : IUnitOfWork
 {

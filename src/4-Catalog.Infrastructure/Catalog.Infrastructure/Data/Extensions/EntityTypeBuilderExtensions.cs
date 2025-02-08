@@ -1,7 +1,7 @@
 using Catalog.Core.SharedKernel;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Catalog.Infrastructure.Data.Extensions;
+namespace Catalog.Infrastructure.PostgreSql.Data.Extensions;
 
 internal static class EntityTypeBuilderExtensions
 {

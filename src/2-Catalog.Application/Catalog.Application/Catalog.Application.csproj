@@ -17,7 +17,7 @@
   
   <ItemGroup>
     <ProjectReference Include="..\..\3-Catalog.Domain\Catalog.Domain\Catalog.Domain.csproj" />
-    <ProjectReference Include="..\..\4-Catalog.Infrastructure\Catalog.Infrastructure\Catalog.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\4-Catalog.Infrastructure\Catalog.Infrastructure\Catalog.Infrastructure.PostgreSql.csproj" />
     <ProjectReference Include="..\..\Catalog.Core\Catalog.Core.csproj" />
   </ItemGroup>
   
