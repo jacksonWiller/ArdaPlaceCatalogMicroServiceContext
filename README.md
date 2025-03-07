@@ -21,7 +21,7 @@ Porque estudar é divertido! 📖 Esse repositório serve como um playground par
 
 # 💡 Clean Architecture no Projeto Catalog: Vamos Falar Sobre a Estrutura!
 
-A **Clean Architecture** é aquela abordagem que deixa o seu sistema limpinho, organizado e bem fácil de testar. Ela separa tudo em camadas, cada uma com uma responsabilidade única, e faz o sistema funcionar de forma super independente. No projeto **Catalog**, aplicamos essa arquitetura com muito amor e carinho, seguindo os princípios mais importantes, como inversão de dependência e separação de responsabilidades.
+A **Clean Architecture** é aquela abordagem que deixa o seu sistema limpo, organizado e bem fácil de testar. Ela separa tudo em camadas, cada uma com uma responsabilidade única, e faz o sistema funcionar de forma super independente. No projeto **Catalog**, aplicamos essa arquitetura com muito amor e carinho, seguindo os princípios mais importantes, como inversão de dependência e separação de responsabilidades.
 
 ## 🧩 Como Funciona a Estrutura de Camadas?
 
