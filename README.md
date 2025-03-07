@@ -19,7 +19,7 @@ Porque estudar é divertido! 📖 Esse repositório serve como um playground par
 
 ***
 
-# 💡 Clean Architecture no Projeto Catalog: Vamos Falar Sobre a Estrutura!
+# **Arquitetura Limpa (Clean Architecture)** 🏛️
 
 A **Clean Architecture** é aquela abordagem que deixa o seu sistema limpo, organizado e bem fácil de testar. Ela separa tudo em camadas, cada uma com uma responsabilidade única, e faz o sistema funcionar de forma super independente. No projeto **Catalog**, aplicamos essa arquitetura com muito amor e carinho, seguindo os princípios mais importantes, como inversão de dependência e separação de responsabilidades.
 
@@ -183,7 +183,7 @@ Essa implementação da **Clean Architecture** no **Catalog** mostra como essa a
 
 ***
 
-# 🚀 DDD no Projeto Catalog: Entidades, Value Objects e Agregados
+# **Domain-Driven Design (DDD)** 🎯
 
 O **Domain-Driven Design (DDD)** tem sido um dos principais guias na modelagem do **Catalog**, garantindo um código mais organizado, expressivo e alinhado com o domínio do negócio. A aplicação do DDD reforça a separação de responsabilidades e melhora a testabilidade, proporcionando uma arquitetura sustentável.
 
@@ -1010,6 +1010,7 @@ O projeto **Catalog** já segue muitas boas práticas de **Clean Code**, mas sem
 ✅ Seguir convenções de nomenclatura
 
 Clean Code **não é um destino, mas uma jornada**! ✈️ **Refatoração constante** é essencial para manter um código saudável! 💪
+
 
 
 
