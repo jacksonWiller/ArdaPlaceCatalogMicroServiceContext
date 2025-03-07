@@ -21,12 +21,16 @@ public class LoggingBehavior<TRequest, TResponse>(ILogger<LoggingBehavior<TReque
 
         _logger.LogInformation("----- Handling command '{CommandName}'", commandName);
 
+        _logger.LogInformation("----- Request '{request}'", request);
+
         var timer = new Stopwatch();
         timer.Start();
 
         var response = await next();
 
         timer.Stop();
+
+        _logger.LogInformation("----- Response", response.ToJson().ToString());
 
         var timeTaken = timer.Elapsed.TotalSeconds;
         _logger.LogInformation("----- Command '{CommandName}' handled ({TimeTaken} seconds)", commandName, timeTaken);

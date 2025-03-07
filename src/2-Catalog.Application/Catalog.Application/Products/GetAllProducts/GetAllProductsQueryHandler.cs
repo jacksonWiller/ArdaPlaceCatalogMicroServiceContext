@@ -1,7 +1,6 @@
 using System;
 using System.Linq;
 using System.Linq.Dynamic.Core;
-using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using Ardalis.Result;
@@ -50,26 +49,18 @@ public class GetAllProductsQueryHandler : IRequestHandler<GetAllProductsQuery, R
         var response = new GetAllProductsQueryResponse
         {
             PagedInfo = pagedInfo,
-            Products = [.. filteredProducts.Select(p => new ProductDto
+            Products = filteredProducts?.Select(p => new ProductDto
             {
                 Id = p.Id,
                 Name = p.Name,
                 Description = p.Description,
                 Price = p.Price,
                 StockQuantity = p.StockQuantity,
-                SKU = p.SKU,
+                SKU = p.SKU, 
                 Brand = p.Brand,
-                Images = p.Images.Select(img => new ImageDto { Url = img.Url }).ToList()
-            })]
+            }).ToList() ?? []
         };
 
         return Result<GetAllProductsQueryResponse>.Success(response, "Products retrieved successfully.");
-    }
-
-    public class Paged<T>(PagedInfo pagedInfo, T value)
-    {
-        [JsonInclude]
-        public PagedInfo PagedInfo { get; init; } = pagedInfo;
-        public T Value { get; init; } = value;
     }
 }

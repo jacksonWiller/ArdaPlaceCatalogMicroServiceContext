@@ -127,3 +127,28 @@ Content-Type: application/json
 ### Delete Category
 DELETE {{Catalog.Public.Api_HostAddress}}/api/Categories/{id}
 Accept: application/json
+
+
+# Delete Product
+curl -X DELETE "{{Catalog.Public.Api_HostAddress}}/api/Products/{id}" -H "Accept: application/json"
+
+# Get All Categories
+curl -X GET "{{Catalog.Public.Api_HostAddress}}/api/Categories" -H "Accept: application/json"
+
+# Get Category By Id
+curl -X GET "{{Catalog.Public.Api_HostAddress}}/api/Categories/{id}" -H "Accept: application/json"
+
+# Create Category
+curl -X POST "{{Catalog.Public.Api_HostAddress}}/api/Categories" -H "Content-Type: application/json" -d '{
+  "Name": "string",
+  "Description": "string"
+}'
+
+# Update Category
+curl -X PUT "{{Catalog.Public.Api_HostAddress}}/api/Categories/{id}" -H "Content-Type: application/json" -d '{
+  "Name": "string",
+  "Description": "string"
+}'
+
+# Delete Category
+curl -X DELETE "{{Catalog.Public.Api_HostAddress}}/api/Categories/{id}" -H "Accept: application/json"

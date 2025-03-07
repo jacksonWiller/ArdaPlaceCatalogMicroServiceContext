@@ -52,7 +52,7 @@ public class ProductsController(IMediator mediator) : ControllerBase
     /// <response code="404">When no client is found by the given Id.</response>
     /// <response code="500">When an unexpected internal error occurs on the server.</response>
     [HttpPut]
-    [Consumes(MediaTypeNames.Application.Json)]
+    [Consumes(MediaTypeNames.Multipart.FormData, MediaTypeNames.Application.Json)]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]

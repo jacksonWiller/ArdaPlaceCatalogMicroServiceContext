@@ -7,17 +7,17 @@ namespace Catalog.Domain.Entities.ProductAggregate;
 
 public class Product : BaseEntity, IAggregateRoot
 {
-    public string Name { get; private set; }
-    public string Description { get; private set; }
-    public decimal Price { get; private set; }
-    public int StockQuantity { get; private set; }
-    public string SKU { get; private set; }
-    public string Brand { get; private set; }
-    public List<Category> Categories { get; private set; } = [];
-    public List<Image> Images { get; private set; } = [];
-    public List<Tag> Tags { get; private set; } = [];
+    public string Name { get; set; }
+    public string Description { get; set; }
+    public decimal Price { get; set; }
+    public int StockQuantity { get; set; }
+    public string SKU { get; set; }
+    public string Brand { get; set; }
+    public List<Category> Categories { get; set; } = [];
+    public List<Image> Images { get; set; } = [];
+    public List<Tag> Tags { get; set; } = [];
 
-    public bool _isDeleted { get; private set; } = false;
+    public bool _isDeleted { get; set; } = false;
     
     public Product() { }
 
