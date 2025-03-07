@@ -425,6 +425,592 @@ Adotar Event Sourcing é um verdadeiro **game-changer** quando falamos de escala
 
 Se você quer um sistema preparado para escalar e evoluir sem dores de cabeça, essa abordagem é uma excelente escolha! 🚀🔥
 
+***
+
+# 🚀 CQRS no Projeto Catalog: Implementação com MediatR
+
+Opa, dev! 😎 Já ouviu falar do CQRS (Command Query Responsibility Segregation)?
+Se não, relaxa que a gente te explica de um jeito simples e direto! Se sim, vem ver como aplicamos isso no projeto **Catalog** usando **MediatR**! 🏗️
+
+## 🔥 O que é CQRS?
+
+CQRS é aquele padrão arquitetural maroto que separa operações de **leitura** (Queries) das de **escrita** (Commands). Ou seja, nada de misturar tudo num CRUDzão da vida! 😅
+
+No nosso projeto, a implementação é parcial (usamos um único banco de dados), mas já garante:
+
+✅ Separação clara entre **Commands** e **Queries**
+✅ Código mais organizado e modular
+✅ Facilidade para escalar e evoluir para Event Sourcing no futuro
+
+## 🏗️ Como implementamos?
+
+A estrutura básica da nossa implementação segue três componentes:
+
+1️⃣ **Commands & Queries** – Definem o que queremos modificar ou buscar 📝
+2️⃣ **Handlers** – Processam os commands e queries 🏗️
+3️⃣ **MediatR** – O chefão que conecta tudo 💬
+
+---
+
+## 🛠️ Configurando o MediatR
+
+Primeiro, registramos o MediatR e nossos handlers no `ConfigureServices`:
+
+```csharp
+public static IServiceCollection AddCommandHandlers(this IServiceCollection services)
+{
+    var assembly = Assembly.GetExecutingAssembly();
+    return services
+        .AddValidatorsFromAssembly(assembly)
+        .AddMediatR(cfg => cfg.RegisterServicesFromAssembly(assembly))
+        .AddBehavior(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
+}
+```
+
+Isso aqui:
+- Registra automaticamente os handlers 🎯
+- Adiciona validações com FluentValidation ✅
+- Insere um behavior de logging pra monitorar os comandos 👀
+
+---
+
+## ⚡ Criando Commands
+
+Os **Commands** representam **intenção de mudança** no sistema. Exemplo: criar uma categoria.
+
+```csharp
+public class CreateCategoryCommand : IRequest<Result<CreateCategoryResponse>>
+{
+    public string Name { get; set; }
+    public string Description { get; set; }
+}
+```
+
+Agora, o **handler** desse command, que vai processar a solicitação:
+
+```csharp
+public class CreateCategoryCommandHandler : IRequestHandler<CreateCategoryCommand, Result<CreateCategoryResponse>>
+{
+    private readonly ICatalogDbContext _context;
+    private readonly IValidator<CreateCategoryCommand> _validator;
+    private readonly IUnitOfWork _unitOfWork;
+
+    public CreateCategoryCommandHandler(ICatalogDbContext context, IValidator<CreateCategoryCommand> validator, IUnitOfWork unitOfWork)
+    {
+        _context = context;
+        _validator = validator;
+        _unitOfWork = unitOfWork;
+    }
+
+    public async Task<Result<CreateCategoryResponse>> Handle(CreateCategoryCommand request, CancellationToken cancellationToken)
+    {
+        var validationResult = await _validator.ValidateAsync(request, cancellationToken);
+        if (!validationResult.IsValid)
+        {
+            return Result<CreateCategoryResponse>.Invalid(validationResult.AsErrors());
+        }
+
+        var category = new Category(request.Name, request.Description);
+        _context.Set<Category>().Add(category);
+        await _unitOfWork.SaveChangesAsync();
+
+        return Result<CreateCategoryResponse>.Success(new CreateCategoryResponse(category.Id), "Categoria criada com sucesso!");
+    }
+}
+```
+
+Aqui:
+✅ Validamos os dados com FluentValidation 🔎
+✅ Criamos a entidade **Category** 📦
+✅ Salvamos as mudanças com **UnitOfWork** 💾
+✅ Retornamos um resultado encapsulado 🎯
+
+---
+
+## 🔍 Criando Queries
+
+Enquanto Commands modificam o sistema, **Queries** são responsáveis por buscar dados.
+
+```csharp
+public class GetCategoryByIdQuery(Guid id) : IRequest<Result<GetCategoryByIdQueryResponse>>
+{
+    public Guid Id { get; set; } = id;
+}
+```
+
+E o handler:
+
+```csharp
+public class GetCategoryByIdQueryHandler : IRequestHandler<GetCategoryByIdQuery, Result<GetCategoryByIdQueryResponse>>
+{
+    private readonly ICatalogDbContext _context;
+    private readonly IValidator<GetCategoryByIdQuery> _validator;
+
+    public GetCategoryByIdQueryHandler(ICatalogDbContext context, IValidator<GetCategoryByIdQuery> validator)
+    {
+        _context = context;
+        _validator = validator;
+    }
+
+    public async Task<Result<GetCategoryByIdQueryResponse>> Handle(GetCategoryByIdQuery request, CancellationToken cancellationToken)
+    {
+        var validationResult = await _validator.ValidateAsync(request, cancellationToken);
+        if (!validationResult.IsValid)
+        {
+            return Result<GetCategoryByIdQueryResponse>.Invalid(validationResult.AsErrors());
+        }
+
+        var category = await _context.Set<Category>().Where(p => p.Id == request.Id).SingleOrDefaultAsync(cancellationToken);
+        if (category == null)
+            return Result.NotFound($"Categoria não encontrada: {request.Id}");
+
+        return Result<GetCategoryByIdQueryResponse>.Success(new GetCategoryByIdQueryResponse { Name = category.Name, Description = category.Description }, "Categoria encontrada!");
+    }
+}
+```
+
+Aqui:
+✅ Validamos a **query** antes de executá-la 🔍
+✅ Buscamos os dados no **banco de dados** 💾
+✅ Retornamos um DTO formatado corretamente 🎯
+
+---
+
+## 📌 Adicionando um Logging Behavior
+
+Queremos logar tudo o que acontece? Criamos um **behavior** no MediatR!
+
+```csharp
+public class LoggingBehavior<TRequest, TResponse>(ILogger<LoggingBehavior<TRequest, TResponse>> logger)
+    : IPipelineBehavior<TRequest, TResponse> where TRequest : IRequest<TResponse>
+{
+    public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
+    {
+        var commandName = request.GetGenericTypeName();
+        logger.LogInformation("🔵 Executando comando '{CommandName}'", commandName);
+        var response = await next();
+        logger.LogInformation("🟢 Comando '{CommandName}' finalizado", commandName);
+        return response;
+    }
+}
+```
+
+Agora qualquer **Command** ou **Query** será logado automaticamente! 📜😎
+
+---
+
+## 🎯 Conclusão
+
+CQRS com MediatR torna nossa arquitetura mais **organizada**, **testável** e **escalável**! 🏆
+
+✅ **Commands e Queries separados** 📌
+✅ **Handlers desacoplados** 🏗️
+✅ **Behaviors para logging e validações** 🔍
+✅ **Pronto para Event Sourcing no futuro** 🚀
+
+***
+
+# SOLID no Projeto Catalog: Princípios Aplicados na Prática 🚀💡
+
+Os princípios SOLID são a base para um design de software sustentável, escalável e fácil de manter. Neste artigo, exploraremos como cada princípio SOLID é aplicado no projeto **Catalog**, com exemplos reais de código para ilustrar sua implementação. Vamos lá! 🎯✨
+
+---
+
+## 🟢 S - Princípio da Responsabilidade Única (Single Responsibility Principle)
+
+Uma classe deve ter **apenas uma razão para mudar**, ou seja, deve ter uma única responsabilidade.
+
+### 📌 Exemplo no Projeto
+
+No **Catalog**, o `CreateCategoryCommandHandler` exemplifica este princípio:
+
+```csharp
+public class CreateCategoryCommandHandler : IRequestHandler<CreateCategoryCommand, Result<CreateCategoryResponse>>
+{
+    private readonly ICatalogDbContext _context;
+    private readonly IValidator<CreateCategoryCommand> _validator;
+    private readonly IUnitOfWork _unitOfWork;
+
+    public CreateCategoryCommandHandler(
+        ICatalogDbContext context,
+        IValidator<CreateCategoryCommand> validator,
+        IUnitOfWork unitOfWork)
+    {
+        _context = context;
+        _validator = validator;
+        _unitOfWork = unitOfWork;
+    }
+
+    public async Task<Result<CreateCategoryResponse>> Handle(CreateCategoryCommand request, CancellationToken cancellationToken)
+    {
+        // Validação do comando ✅
+        var validationResult = await _validator.ValidateAsync(request, cancellationToken);
+        if (!validationResult.IsValid)
+        {
+            return Result<CreateCategoryResponse>.Invalid(validationResult.AsErrors());
+        }
+
+        var category = new Category(request.Name, request.Description);
+        _context.Set<Category>().Add(category);
+        await _unitOfWork.SaveChangesAsync();
+
+        var response = new CreateCategoryResponse(category.Id);
+        return Result<CreateCategoryResponse>.Success(response, "Category created successfully.");
+    }
+}
+```
+
+🔹 O handler tem **apenas uma responsabilidade**: processar o comando de criação de categoria. 
+🔹 A validação, criação e persistência são delegadas para classes específicas. 
+🔹 Código mais limpo, modular e fácil de manter! ✅
+
+---
+
+## 🔵 O - Princípio Aberto/Fechado (Open/Closed Principle)
+
+Entidades de software devem estar **abertas para extensão**, mas **fechadas para modificação**.
+
+### 📌 Exemplo no Projeto
+
+O sistema de **eventos de domínio** ilustra bem esse princípio:
+
+```csharp
+public abstract class CategoryBaseEvent(Category category) : BaseEvent
+{
+    public Category Category { get; private init; } = category;
+}
+
+public class CategoryCreatedEvent(Category category) : CategoryBaseEvent(category) {}
+public class CategoryUpdatedEvent(Category category) : CategoryBaseEvent(category) {}
+```
+
+🔹 **BaseEvent** está **fechado para modificação**, mas **aberto para extensão** por meio de novas subclasses. 
+🔹 Podemos adicionar novos eventos sem modificar código existente! 🔥
+
+Outro exemplo é o sistema de behaviors do **MediatR**, onde podemos adicionar novos behaviors sem alterar o código existente:
+
+```csharp
+services
+    .AddValidatorsFromAssembly(assembly)
+    .AddMediatR(cfg => cfg.RegisterServicesFromAssembly(assembly))
+    .AddBehavior(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
+```
+
+---
+
+## 🟠 L - Princípio da Substituição de Liskov (Liskov Substitution Principle)
+
+Objetos de uma classe derivada devem poder substituir objetos da classe base **sem quebrar o sistema**. 🔄
+
+### 📌 Exemplo no Projeto
+
+A estrutura de **entidades base** respeita esse princípio:
+
+```csharp
+public abstract class BaseEntity : IEntity<Guid>
+{
+    protected BaseEntity() => Id = Guid.NewGuid();
+    protected BaseEntity(Guid id) => Id = id;
+
+    public Guid Id { get; private init; }
+}
+
+public class Category : BaseEntity
+{
+    public string Name { get; private set; }
+    public string Description { get; private set; }
+    public List<Product> Products { get; private set; } = [];
+}
+```
+
+🔹 `Category` **herda** de `BaseEntity` mantendo compatibilidade.
+🔹 Qualquer código que utilize `BaseEntity` funcionará corretamente com `Category`. 🎯
+
+---
+
+## 🟣 I - Princípio da Segregação de Interface (Interface Segregation Principle)
+
+Interfaces devem ser **pequenas e específicas**, evitando que clientes dependam de métodos que não usam. 🚀
+
+### 📌 Exemplo no Projeto
+
+A interface `IAggregateRoot` demonstra esse princípio:
+
+```csharp
+public interface IAggregateRoot;
+```
+
+🔹 **Interface de marcação**, sem métodos desnecessários.
+🔹 Evita impor responsabilidades extras para classes que a implementam. ✅
+
+Outro exemplo: separação da interface do contexto de dados:
+
+```csharp
+public interface ICatalogDbContext : IDisposable
+{
+    DbSet<TEntity> Set<TEntity>() where TEntity : class;
+    Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
+}
+```
+
+🔹 Apenas os métodos **necessários** são expostos! 🛠️
+
+---
+
+## 🔴 D - Princípio da Inversão de Dependência (Dependency Inversion Principle)
+
+Módulos de alto nível **não devem depender** de módulos de baixo nível. Ambos devem depender de **abstrações**. 🏗️
+
+### 📌 Exemplo no Projeto
+
+```csharp
+public class CreateProductCommandHandler : IRequestHandler<CreateProductCommand, Result<CreateProductResponse>>
+{
+    private readonly ICatalogDbContext _context;
+    private readonly IValidator<CreateProductCommand> _validator;
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly HttpClient _httpClient;
+
+    public CreateProductCommandHandler(
+        ICatalogDbContext context,
+        IValidator<CreateProductCommand> validator,
+        IUnitOfWork unitOfWork,
+        IHttpClientFactory httpClientFactory)
+    {
+        _context = context;
+        _validator = validator;
+        _unitOfWork = unitOfWork;
+        _httpClient = httpClientFactory.CreateClient();
+    }
+}
+```
+
+🔹 O handler **não depende** de implementações concretas, apenas de abstrações! 🔥
+
+Outro exemplo na configuração do **Startup.cs**:
+
+```csharp
+services.AddScoped<ICatalogDbContext, CatalogDbContext>()
+        .AddScoped<IUnitOfWork, UnitOfWork>();
+```
+
+🔹 As implementações são resolvidas **em tempo de execução**, garantindo flexibilidade. 🏗️
+
+---
+
+## 🎯 Conclusão
+
+Os princípios SOLID são aplicados **consistentemente** no projeto Catalog, garantindo:
+
+✅ **Código mais limpo** e organizado.
+✅ **Facilidade de manutenção** e evolução.
+✅ **Alta coesão e baixo acoplamento**.
+
+💡 **Resumo rápido dos princípios:**
+
+1️⃣ **S** - Responsabilidade única: cada classe tem apenas uma função.
+2️⃣ **O** - Aberto/Fechado: código pode ser estendido sem ser modificado.
+3️⃣ **L** - Substituição de Liskov: heranças bem planejadas.
+4️⃣ **I** - Segregação de Interface: interfaces específicas e bem definidas.
+5️⃣ **D** - Inversão de Dependência: módulos dependem de abstrações.
+
+🚀 **Com isso, o projeto se mantém escalável, sustentável e pronto para crescer!** 🚀
+
+***
+
+# **Clean Code (ou pelo menos tentei) ✨**
+
+## 🚀 Clean Code: Princípios e Aplicações no Projeto Catalog
+
+Clean Code (Código Limpo) refere-se a um conjunto de práticas para escrever código que seja **legível**, **manutenível** e **fácil de entender**. Popularizado por **Robert C. Martin (Uncle Bob)**, esses princípios ajudam desenvolvedores a criar software de alta qualidade e de fácil manutenção. 
+
+Analisaremos como os princípios de Clean Code são aplicados no projeto **Catalog** e identificaremos oportunidades de melhoria. 🔍
+
+---
+
+## 🏆 Princípios do Clean Code
+
+### 🔤 1. Nomes Significativos
+
+Escolher **bons nomes** é essencial para a clareza do código! Nada de abreviações obscuras ou nomes genéricos! ❌
+
+#### ✅ Bom Exemplo:
+```csharp
+public class Category : BaseEntity
+{
+    public string Name { get; private set; }
+    public string Description { get; private set; }
+    public List<Product> Products { get; private set; } = [];
+    public bool IsDeleted { get; private set; } = false;
+
+    public void Update(string name, string description)
+    {
+        Name = name;
+        Description = description;
+        AddDomainEvent(new CategoryUpdatedEvent(this));
+    }
+}
+```
+✅ **Clareza total nos nomes!** Nada de `a`, `b`, `data` ou `xpto`! 🚀
+
+#### 🔍 Oportunidade de Melhoria:
+```csharp
+public Category(string nome, string descricao)
+{
+    Name = nome;
+    Description = descricao;
+    AddDomainEvent(new CategoryCreatedEvent(this));
+}
+```
+🔴 **Inconsistência detectada!** ⚠️ Mistura de idiomas nos nomes! O ideal é manter tudo em **inglês**:
+```csharp
+public Category(string name, string description)
+{
+    Name = name;
+    Description = description;
+    AddDomainEvent(new CategoryCreatedEvent(this));
+}
+```
+✅ **Agora sim!** Consistência é fundamental! 😃
+
+---
+
+### 🔧 2. Funções Pequenas e Focadas
+
+Cada função deve **fazer uma única coisa e fazer bem feito**! 🔥
+
+#### ✅ Bom Exemplo:
+```csharp
+public void Delete()
+{
+    if (IsDeleted) return;
+
+    IsDeleted = true;
+    AddDomainEvent(new CategoryDeletedEvent(this));
+}
+```
+✅ **Simples, direto ao ponto e sem enrolação!** 🎯
+
+---
+
+### 📂 3. Estrutura Bem Organizada (CQRS)
+
+Separação clara entre **Comandos e Queries** para manter a organização! 🏗️
+
+#### ✅ Exemplo de um Command Handler bem estruturado:
+```csharp
+public class CreateCategoryCommandHandler : IRequestHandler<CreateCategoryCommand, Result<CreateCategoryResponse>>
+{
+    private readonly ICatalogDbContext _context;
+    private readonly IValidator<CreateCategoryCommand> _validator;
+    private readonly IUnitOfWork _unitOfWork;
+
+    public CreateCategoryCommandHandler(
+        ICatalogDbContext context,
+        IValidator<CreateCategoryCommand> validator,
+        IUnitOfWork unitOfWork
+    )
+    {
+        _context = context;
+        _validator = validator;
+        _unitOfWork = unitOfWork;
+    }
+
+    public async Task<Result<CreateCategoryResponse>> Handle(CreateCategoryCommand request, CancellationToken cancellationToken)
+    {
+        var validationResult = await _validator.ValidateAsync(request, cancellationToken);
+        if (!validationResult.IsValid)
+        {
+            return Result<CreateCategoryResponse>.Invalid(validationResult.AsErrors());
+        }
+
+        var category = new Category(request.Name, request.Description);
+
+        _context.Set<Category>().Add(category);
+        await _unitOfWork.SaveChangesAsync();
+
+        return Result<CreateCategoryResponse>.Success(new CreateCategoryResponse(category.Id), "Category created successfully.");
+    }
+}
+```
+✅ **Estrutura clara e bem definida!** Sem bagunça! 📌
+
+---
+
+### 📝 4. Comentários Apropriados
+
+Comentários devem **explicar o porquê**, e não o **como**! ❌ Nada de comentários óbvios!
+
+#### ✅ Bom Exemplo:
+```csharp
+builder
+    .Property(eventStore => eventStore.Data)
+    .IsRequired()
+    .HasColumnType("text") // 🔥 Usando TEXT porque é ilimitado no PostgreSQL
+    .HasComment("JSON serialized event");
+```
+✅ **Explicação útil e concisa!** 🎯
+
+---
+
+### 🔥 5. Tratamento de Erros
+
+Erro **não pode passar batido**! 👀
+
+#### 🔍 Oportunidade de Melhoria:
+```csharp
+try
+{
+    var rowsAffected = await _context.SaveChangesAsync();
+    await transaction.CommitAsync();
+}
+catch (Exception ex)
+{
+    await transaction.RollbackAsync();
+    throw;
+}
+```
+🔴 **Sem logging detalhado!** Poderia ser melhorado assim:
+```csharp
+catch (Exception ex)
+{
+    _logger.LogError(ex, "Erro ao salvar mudanças no banco de dados");
+    await transaction.RollbackAsync();
+    throw;
+}
+```
+✅ **Agora sim!** Logging ajuda na depuração! 🔍
+
+---
+
+### 🗑️ 6. Código Comentado = Código Morto
+
+❌ **Se não usa, delete!**
+
+```csharp
+// var url = "https://localhost:44329/api/files/get-by-key?bucketName=jacksonlocal&key=catalog%2Fdownload.jpeg";
+// var response = await _httpClient.GetAsync(url);
+// response.EnsureSuccessStatusCode();
+```
+🔴 **Remova ou justifique!**
+
+✅ **Código limpo = código sem lixo!** 🧹
+
+---
+
+## 📌 Conclusão
+
+O projeto **Catalog** já segue muitas boas práticas de **Clean Code**, mas sempre há espaço para melhorias! 🔥
+
+### 🚀 **Principais recomendações:**
+✅ Padronizar nomes (**inglês sempre!**)
+✅ Completar validadores
+✅ Remover código morto
+✅ Melhorar logs de erro
+✅ Seguir convenções de nomenclatura
+
+Clean Code **não é um destino, mas uma jornada**! ✈️ **Refatoração constante** é essencial para manter um código saudável! 💪
+
 
 
 
