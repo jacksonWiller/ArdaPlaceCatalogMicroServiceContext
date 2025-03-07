@@ -1,10 +1,10 @@
-# CatalogMicroServiceContext!
+# Catalog!
 
 Bem-vindo ao **Catalog**! 🎉 Esse projeto não é nada sério, nem revolucionário, nem o próximo unicórnio do mercado de tecnologia. Na verdade, ele é apenas um **hobby** para explorar conceitos legais de arquitetura de software e boas práticas. Se você está aqui esperando "o melhor design de software do mundo", sinto muito por isso. 😆
 
 ## O que tem aqui?
 
-O **CatalogMicroServiceContext** é um repositório para testar e demonstrar padrões arquiteturais modernos de uma forma prática e sem pressão. O projeto segue conceitos como:
+O **Catalog** é um repositório para testar e demonstrar padrões arquiteturais modernos de uma forma prática e sem pressão. O projeto segue conceitos como:
 
 - **Arquitetura Limpa (Clean Architecture)** 🏛️
 - **Domain-Driven Design (DDD)** 🎯
