@@ -180,9 +180,251 @@ Tudo isso acontece por causa da **inversão de dependência**, que garante que a
 4. **Separação de Responsabilidades**: Cada camada tem seu papel bem claro, sem confusão.
 
 Essa implementação da **Clean Architecture** no **Catalog** mostra como essa abordagem pode criar um sistema robusto, flexível e super fácil de manter. Prontinho para evoluir sem dor de cabeça!
-```
 
 ***
+
+# 🚀 DDD no Projeto Catalog: Entidades, Value Objects e Agregados
+
+O **Domain-Driven Design (DDD)** tem sido um dos principais guias na modelagem do **Catalog**, garantindo um código mais organizado, expressivo e alinhado com o domínio do negócio. A aplicação do DDD reforça a separação de responsabilidades e melhora a testabilidade, proporcionando uma arquitetura sustentável.
+
+A estrutura do projeto foi construída sobre três pilares fundamentais:
+
+- **Entidades** 🆔  
+- **Value Objects** 🎭  
+- **Agregados** 📦  
+
+Embora **Contextos Delimitados** sejam um aspecto essencial do DDD, a abordagem adotada até o momento focou nos elementos centrais que estruturam o domínio. Esse será um tema a ser abordado futuramente, dado seu impacto na segmentação e organização dos modelos.
+
+## 📌 Blocos Fundamentais do DDD
+
+A modelagem do **Catalog** foi organizada da seguinte forma:
+
+- **Entidades** → Possuem identidade única e persistem ao longo do tempo, mesmo com mudanças de atributos.
+- **Value Objects** → Não possuem identidade própria e são definidos apenas pelos valores que carregam.
+- **Agregados** → Representam um grupo coeso de entidades e value objects, garantindo consistência nas alterações.
+
+Essa estrutura permite um modelo de domínio mais claro, onde os objetos possuem regras bem definidas e mantêm a integridade dos dados.
+
+## 🆔 Entidades no Domínio
+
+As **entidades** do projeto seguem um padrão de encapsulamento que protege seus estados internos. No **Catalog**, todas as entidades herdam de `BaseEntity`, garantindo um identificador único e suporte a eventos de domínio:
+
+```csharp
+public abstract class BaseEntity : IEntity<Guid>
+{
+    private readonly List<BaseEvent> _domainEvents = [];
+
+    protected BaseEntity() => Id = Guid.NewGuid();
+    protected BaseEntity(Guid id) => Id = id;
+
+    public IEnumerable<BaseEvent> DomainEvents => _domainEvents.AsReadOnly();
+    public Guid Id { get; private init; }
+}
+```
+
+A **Category** representa um exemplo de entidade que encapsula regras de negócio e mantém uma lista de produtos:
+
+```csharp
+public class Category : BaseEntity
+{
+    public string Name { get; private set; }
+    public string Description { get; private set; }
+    public List<Product> Products { get; private set; } = [];
+    private bool _isDeleted = false;
+
+    public void Update(string name, string description)
+    {
+        Name = name;
+        Description = description;
+        // Evento de domínio...
+    }
+
+    public void Delete()
+    {
+        if (_isDeleted) return;
+        _isDeleted = true;
+        // Evento de domínio...
+    }
+}
+```
+
+## 🎭 Value Objects no Modelo
+
+Os **Value Objects** são imutáveis e não possuem identidade própria. No projeto, a classe `Image` ilustra bem esse conceito:
+
+```csharp
+public class Image
+{
+    public Guid Id { get; private set; } = Guid.NewGuid();
+    public string Name { get; private set; }
+    public string Prefix { get; private set; }
+    public string Url { get; private set; }
+
+    public Image(string prefix, string name)
+    {
+        Prefix = prefix;
+        Name = name;
+        Url = $"{prefix}/{name}";
+    }
+}
+```
+
+A persistência desse value object no banco de dados é realizada via **EF Core**, garantindo sua associação com a entidade pai:
+
+```csharp
+builder.OwnsMany(product => product.Images, p =>
+{
+    p.WithOwner().HasForeignKey("ProductId");
+    p.Property<Guid>("Id");
+    p.HasKey("Id");
+    p.Property(image => image.Name).IsRequired().HasMaxLength(255);
+    p.Property(image => image.Url).IsRequired().HasMaxLength(255);
+    p.ToTable("ProductImages");
+});
+```
+
+## 📦 Agregados e Consistência
+
+Os **agregados** organizam o domínio em torno de um ponto central de modificação de dados. No **Catalog**, `Product` age como um **agregado raiz**, garantindo que alterações sejam controladas de forma consistente:
+
+```csharp
+public class Product : BaseEntity, IAggregateRoot
+{
+    public string Name { get; private set; }
+    public decimal Price { get; private set; }
+    public List<Category> Categories { get; private set; } = [];
+    public List<Image> Images { get; private set; } = [];
+
+    public void AddImage(List<Image> images)
+    {
+        Images = images;
+        // Evento de domínio...
+    }
+
+    public void AddCategory(Category category)
+    {
+        Categories.Add(category);
+        // Evento de domínio...
+    }
+}
+```
+
+A interface `IAggregateRoot` sinaliza que `Product` é um agregado raiz, permitindo que repositórios interajam com ele como uma única unidade:
+
+```csharp
+public interface IAggregateRoot;
+```
+
+## 🎯 Benefícios da Aplicação do DDD no Catalog
+
+- 💎 **Modelo Rico e Expressivo** → Código que reflete fielmente o domínio do negócio.  
+- 🛡 **Encapsulamento** → Protege regras de negócio dentro das entidades.  
+- 🔄 **Consistência** → Os agregados garantem integridade nos dados.  
+- 🗣 **Linguagem Ubíqua** → Facilita a comunicação entre desenvolvedores e especialistas do domínio.  
+- 🧪 **Testabilidade** → Código altamente testável sem dependências de infraestrutura.  
+
+## 🎬 Considerações Finais
+
+A aplicação do **DDD** no **Catalog** estruturou um modelo de software sólido e alinhado com as necessidades do negócio. A segmentação entre **Entidades, Value Objects e Agregados** proporcionou um código sustentável e modular.
+
+O próximo passo será aprofundar os **Contextos Delimitados**, um conceito essencial para dividir o domínio em partes coesas e evitar acoplamento excessivo. Esse será o tema de uma discussão futura. 🚀
+
+***
+
+# 📌 Event Sourcing: O Que é e Como Ajuda no Desacoplamento de Serviços
+
+Se você já precisou auditar uma mudança no sistema ou quis reverter algo sem saber exatamente o que aconteceu, provavelmente sentiu falta de um bom Event Sourcing. Mas relaxa, porque hoje vamos descomplicar essa parada! 😎
+
+---
+
+## 🎯 O que é Event Sourcing?
+
+Ao invés de simplesmente armazenar o **estado atual** de uma entidade (como um produto ou uma categoria), o Event Sourcing guarda **todas as mudanças** que aconteceram com ela ao longo do tempo. Ou seja, em vez de sobrescrever os dados, cada alteração vira um **evento imutável**! 🔄
+
+### 🛠️ Benefícios do Event Sourcing
+✅ **Reconstrução de estado** a qualquer momento no tempo.  
+✅ **Auditoria completa** das mudanças, sem perda de informações.  
+✅ **Depuração e debugging** mais fáceis, já que você tem um histórico detalhado.  
+✅ **Time-travel!** ⏳ Volte no tempo e veja como os dados evoluíram.  
+
+---
+
+## 🔌 Como o Event Sourcing Desacopla Serviços?
+
+Aqui entra a parte mais interessante! Com Event Sourcing, podemos notificar outros serviços sobre mudanças **sem criar dependências diretas entre eles**. Isso significa:
+
+🔹 **Menos acoplamento**: Um serviço pode emitir um evento, e vários outros podem reagir a ele **sem precisarem se conhecer**.  
+🔹 **Resiliência**: Se um serviço estiver fora do ar, ele pode processar os eventos quando voltar. 🔄  
+🔹 **Escalabilidade**: Ao invés de sobrecarregar um sistema central, cada serviço pode processar eventos separadamente. 🚀  
+
+---
+
+## 🏗️ Implementação no Projeto Catalog
+
+No projeto, segui essa abordagem para deixar tudo mais organizado e flexível. Começamos criando uma estrutura base para eventos:
+
+```csharp
+public abstract class BaseEvent : INotification
+{
+    public string MessageType { get; protected init; }
+    public Guid AggregateId { get; protected init; }
+    public DateTime OccurredOn { get; private init; } = DateTime.Now;
+}
+```
+
+### 📝 Criando Eventos de Domínio
+Cada entidade pode **gerar eventos** sempre que acontece uma mudança importante:
+
+```csharp
+public class Category : BaseEntity
+{
+    public Category(string nome, string descricao)
+    {
+        Name = nome;
+        Description = descricao;
+        AddDomainEvent(new CategoryCreatedEvent(this));
+    }
+
+    public void Update(string nome, string descricao)
+    {
+        Name = nome;
+        Description = descricao;
+        AddDomainEvent(new CategoryUpdatedEvent(this));
+    }
+}
+```
+
+Agora, quando uma **categoria for criada ou atualizada**, um evento será disparado! ⚡
+
+---
+
+## 🔄 Processamento dos Eventos com Unit of Work
+
+O **Unit of Work** garante que os eventos sejam salvos e publicados corretamente:
+
+```csharp
+public async Task SaveChangesAsync()
+{
+    var (domainEvents, eventStores) = BeforeSaveChanges();
+    await _context.SaveChangesAsync();
+    await AfterSaveChangesAsync(domainEvents, eventStores);
+}
+```
+
+Ele coleta os eventos antes de salvar, garante a persistência no banco e, depois, dispara os eventos para que outros serviços possam reagir. 📢
+
+---
+
+## 🎬 Conclusão
+
+Adotar Event Sourcing é um verdadeiro **game-changer** quando falamos de escalabilidade e desacoplamento! 🏆
+
+✅ **Serviços independentes** que não precisam se conhecer.  
+✅ **Histórico completo de dados**, sem perda de informações.  
+✅ **Maior resiliência** e **flexibilidade** para crescimento futuro.  
+
+Se você quer um sistema preparado para escalar e evoluir sem dores de cabeça, essa abordagem é uma excelente escolha! 🚀🔥
+
 
 
 
