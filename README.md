@@ -19,23 +19,19 @@ Porque estudar é divertido! 📖 Esse repositório serve como um playground par
 
 ***
 
-# 🚀 Clean Architecture no Projeto Catalog: Um Playground de Arquitetura!
+# 💡 Clean Architecture no Projeto Catalog: Vamos Falar Sobre a Estrutura!
 
-A **Clean Architecture** não é apenas um nome bonito, mas uma forma de estruturar o código de um jeito mais **organizado, testável e independente**. No **Catalog**, seguim essa seguinte abordagem porque... bom, porque achei legal! 😆
+A **Clean Architecture** é aquela abordagem que deixa o seu sistema limpinho, organizado e bem fácil de testar. Ela separa tudo em camadas, cada uma com uma responsabilidade única, e faz o sistema funcionar de forma super independente. No projeto **Catalog**, aplicamos essa arquitetura com muito amor e carinho, seguindo os princípios mais importantes, como inversão de dependência e separação de responsabilidades.
 
-## 🏛️ Estrutura de Camadas
+## 🧩 Como Funciona a Estrutura de Camadas?
 
-O projeto está dividido em **quatro camadas** principais, cada uma com seu papel bem definido:
+No projeto **Catalog**, temos quatro camadas principais que fazem toda a mágica acontecer:
 
-### 🔹 1. Domínio (O Coração do Sistema)
+### 1. 🔑 Camada de Domínio (Onde a Magia Acontece!)
 
-Aqui mora a alma do projeto! 💙 A camada de domínio (`3-Catalog.Domain`) não sabe que o resto do mundo existe. Ela contém:
+A camada de **domínio** (`3-Catalog.Domain`) é o coração do sistema. Ela contém as **entidades de negócio** e as **regras de negócio** (sim, essas são as coisas mais importantes), e é completamente independente das outras camadas.
 
-- **Entidades de negócio** (as estrelas do show)  
-- **Interfaces** (contratos para o resto do sistema)  
-- **Regras de negócio** (onde a mágica acontece ✨)  
-
-Exemplo de uma entidade poderosa:
+Aqui, as **entidades de negócio** representam os conceitos principais do sistema. Imagine que a nossa entidade **Category** (categoria) é o centro de tudo no mundo **Catalog**. Ela tem uma estrutura assim:
 
 ```csharp
 public class Category : BaseEntity
@@ -43,97 +39,150 @@ public class Category : BaseEntity
     public string Name { get; private set; }
     public string Description { get; private set; }
     public List<Product> Products { get; private set; } = [];
-    
-    public Category(string name, string description)
+
+    public bool _isDeleted { get; private set; } = false;
+
+    public Category() {}
+
+    public Category(string nome, string descricao)
     {
-        Name = name;
-        Description = description;
+        Name = nome;
+        Description = descricao;
         AddDomainEvent(new CategoryCreatedEvent(this));
     }
+
+    public void Update(string nome, string descricao)
+    {
+        Name = nome;
+        Description = descricao;
+        AddDomainEvent(new CategoryUpdatedEvent(this));
+    }
+    
+    // Mais métodos de domínio...
 }
 ```
 
-Ela não sabe nada sobre banco de dados, frameworks ou APIs. E é assim que deve ser! 😎
+Aqui, definimos até as **interfaces** que serão implementadas nas camadas externas, como a interface `ICatalogDbContext` que cuida de tudo com o banco de dados:
 
----
+```csharp
+public interface ICatalogDbContext : IDisposable
+{
+    DbSet<TEntity> Set<TEntity>() where TEntity : class;
+    Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
+    int SaveChanges();
+    ChangeTracker ChangeTracker { get; }
+    DatabaseFacade Database { get; }
+    EntityEntry<TEntity> Entry<TEntity>(TEntity entity) where TEntity : class;
+    // Outros membros...
+}
+```
 
-### 🛠️ 2. Aplicação (Os Orquestradores)
+### 2. 🏃‍♂️ Camada de Aplicação (Os Bastidores)
 
-A camada de aplicação (`2-Catalog.Application`) é como um maestro, organizando as interações entre domínio e infraestrutura.
+A camada de **aplicação** (`2-Catalog.Application`) é onde a **mágica** realmente acontece, mas sem adicionar regras de negócio, ok? Aqui, tudo é orquestrado e as operações entre o **domínio** e a **infraestrutura** são coordenadas. Em vez de fazer as coisas acontecerem diretamente, ela organiza tudo como um maestro!
 
-✅ **Não contém regras de negócio** (essas ficam no domínio)  
-✅ **Usa os contratos do domínio** para acessar dados  
-✅ **Gerencia fluxos de operações**  
+```xml
+<ProjectReference Include="..\..\3-Catalog.Domain\Catalog.Domain\Catalog.Domain.csproj" />
+<ProjectReference Include="..\..\Catalog.Core\Catalog.Core.csproj" />
+```
 
-Exemplo de um Handler (executor de comandos):
+E aqui está um exemplo de como a **injeção de dependência** funciona. O `CreateCategoryCommandHandler` só precisa se preocupar em chamar o que foi definido no domínio, sem saber os detalhes de implementação:
 
 ```csharp
 public class CreateCategoryCommandHandler : IRequestHandler<CreateCategoryCommand, Result<CreateCategoryResponse>>
 {
     private readonly ICatalogDbContext _context;
+    private readonly IValidator<CreateCategoryCommand> _validator;
+    private readonly IUnitOfWork _unitOfWork;
+
+    public CreateCategoryCommandHandler(
+        ICatalogDbContext context,
+        IValidator<CreateCategoryCommand> validator,
+        IUnitOfWork unitOfWork
+    )
+    {
+        _context = context;
+        _validator = validator;
+        _unitOfWork = unitOfWork;
+    }
 
     public async Task<Result<CreateCategoryResponse>> Handle(CreateCategoryCommand request, CancellationToken cancellationToken)
     {
-        var category = new Category(request.Name, request.Description);
-        _context.Set<Category>().Add(category);
-        await _context.SaveChangesAsync();
-        return Result<CreateCategoryResponse>.Success(new CreateCategoryResponse(category.Id), "Category created!");
+        var validationResult = await _validator.ValidateAsync(request, cancellationToken);
+        if (!validationResult.IsValid)
+        {
+            return Result<CreateCategoryResponse>.Invalid(validationResult.AsErrors());
+        }
+
+        var product = new Category(request.Name, request.Description);
+        _context.Set<Category>().Add(product);
+        await _unitOfWork.SaveChangesAsync();
+
+        var response = new CreateCategoryResponse(product.Id);
+        return Result<CreateCategoryResponse>.Success(response, "Product created successfully.");
     }
 }
 ```
 
-Perceba que ele **não fala diretamente com o banco de dados**! Ele só pede para alguém fazer isso por ele. 🤝
+### 3. ⚙️ Camada de Infraestrutura (A Parte Técnica)
 
----
-
-### 💾 3. Infraestrutura (Os Bastidores)
-
-A camada de infraestrutura (`4-Catalog.Infrastructure`) faz o trabalho sujo: **salvar no banco, enviar eventos, logar coisas, etc.** Ela implementa interfaces definidas pelo domínio.
+A camada de **infraestrutura** (`4-Catalog.Infrastructure`) cuida de todos os detalhes técnicos, como persistência de dados, mapeamento ORM e integração com o banco. Se fosse um show, a **infraestrutura** seria os bastidores, garantindo que tudo aconteça sem erros.
 
 ```csharp
-public class CatalogDbContext : DbContext, ICatalogDbContext
+public class CatalogDbContext(DbContextOptions<CatalogDbContext> dbOptions) : BaseDbContext<CatalogDbContext>(dbOptions), ICatalogDbContext
 {
+    public DbSet<EventStore> EventStores { get; set; }
+    public DbSet<Product> Products { get; set; }
     public DbSet<Category> Categories { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+
+        modelBuilder.ApplyConfiguration(new ProductConfiguration());
+        modelBuilder.ApplyConfiguration(new CategoryConfiguration());
+        modelBuilder.ApplyConfiguration(new EventStoreConfiguration());
+    }
 }
 ```
 
-Aqui também vive o **Unit of Work**, garantindo que tudo seja salvo no momento certo.
+### 4. 🌍 Camada de Apresentação (Onde Tudo Começa)
+
+Por fim, temos a camada de **apresentação** (`1-Catalog.Presentation`), que é onde as coisas começam a acontecer com o usuário. Ela recebe as requisições HTTP e as envia para a camada de aplicação. Aqui, fazemos toda a conexão entre as camadas!
 
 ```csharp
-public class UnitOfWork : IUnitOfWork
+services.AddScoped<ICatalogDbContext, CatalogDbContext>()
+.AddScoped<IUnitOfWork, UnitOfWork>();
+
+services.AddDbContext<CatalogDbContext>(options =>
 {
-    private readonly ICatalogDbContext _context;
-    public async Task SaveChangesAsync() => await _context.SaveChangesAsync();
-}
+    options.UseNpgsql("Host=localhost;Port=5432;Database=CatalogContext;Username=postgres;Password=postgres");
+});
 ```
 
----
+## 🔄 Como os Dados Fluem?
 
-### 🌍 4. Camada de Apresentação (Onde Tudo Começa)
+O fluxo de dados no sistema funciona assim:
 
-A camada de apresentação (`1-Catalog.Presentation`) é onde tudo começa! Ela recebe requisições e manda a aplicação resolver os problemas.
+1. A camada de apresentação recebe uma requisição HTTP.
+2. Um **command/query** é criado e enviado para um **handler** na camada de aplicação.
+3. O **handler** utiliza as interfaces definidas no domínio, implementadas pela infraestrutura.
+4. As operações acontecem nas **entidades de domínio**.
+5. As mudanças são persistidas pela infraestrutura.
 
-```csharp
-services.AddScoped<ICatalogDbContext, CatalogDbContext>();
-services.AddScoped<IUnitOfWork, UnitOfWork>();
+Tudo isso acontece por causa da **inversão de dependência**, que garante que as camadas de **domínio** e **aplicação** dependem apenas das interfaces, e a **infraestrutura** implementa essas interfaces.
+
+## 🎉 O Que Ganhamos Com Isso?
+
+1. **Testabilidade**: Fácil de substituir implementações reais por mocks nos testes.
+2. **Manutenibilidade**: Alterações em uma camada não afetam as outras.
+3. **Flexibilidade**: Dá para trocar as implementações da infraestrutura sem mexer no código da lógica de negócios.
+4. **Separação de Responsabilidades**: Cada camada tem seu papel bem claro, sem confusão.
+
+Essa implementação da **Clean Architecture** no **Catalog** mostra como essa abordagem pode criar um sistema robusto, flexível e super fácil de manter. Prontinho para evoluir sem dor de cabeça!
 ```
 
----
+***
 
-## 🔄 Fluxo de Dependências
 
-1️⃣ A API recebe uma requisição (exemplo: criar uma categoria).  
-2️⃣ O handler da aplicação recebe o comando.  
-3️⃣ Ele chama o domínio para criar a entidade.  
-4️⃣ A infraestrutura salva tudo no banco.  
-5️⃣ A API retorna um **"Deu certo!"** 🎉  
-
----
-
-## 🎯 Benefícios Dessa Arquitetura
-
-✅ **Testabilidade**: Cada parte pode ser testada isoladamente.  
-✅ **Manutenibilidade**: Alterações em um lugar não quebram o sistema todo.  
-✅ **Flexibilidade**: Podemos trocar bancos de dados, frameworks e APIs sem dor de cabeça.  
-✅ **Separacão de Responsabilidades**: Cada camada faz o que foi feita para fazer.  
 
